@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->longText("content");
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->timestamps();
+
+            // constrains
+            $table->foreign('category_id')->references('id')->on('categories')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 
