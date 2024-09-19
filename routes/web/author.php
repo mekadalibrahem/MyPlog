@@ -12,9 +12,10 @@ Route::middleware([
         'prefix' => 'category',
         'as' => 'category.'
         ],function(){
-        Route::get('/' , [ CategoryController::class ,'create'])->name('create');
+        Route::get('/create' , [ CategoryController::class ,'create'])->name('create');
         Route::post('/create' , [CategoryController::class , 'insert'])->name('create');
         Route::post('/update' , [CategoryController::class , 'update'])->name('update');
+        Route::delete('/delete/{id}',[CategoryController::class , 'delete'])->name('delete');
 
     });
   });
