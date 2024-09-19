@@ -20,6 +20,9 @@
                     <x-nav-link :href="route('category.create')" :active="request()->routeIs('category.create')">
                         {{ __('Categories') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('tag.create')" :active="request()->routeIs('tag.create')">
+                        {{ __('Tags') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -77,6 +80,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('category.create')" :active="request()->routeIs('category.create')">
                 {{ __('Categories') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tag.create')" :active="request()->routeIs('tag.create')">
+                {{ __('Tags') }}
             </x-responsive-nav-link>
         </div>
 
