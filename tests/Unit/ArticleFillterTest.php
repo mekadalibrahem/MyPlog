@@ -99,4 +99,118 @@ class ArticleFillterTest extends TestCase
 
         $this->assertEquals($expected_count, $actual_count);
     }
+    public function test_show_render() : void {
+        $response = $this->actingAs($this->user)->get('dashboard/article/show');
+        $response->assertStatus(200);
+        // Access the articles passed to the view
+        $articles = $response->viewData('articles');
+
+        // Assert the count of articles returned matches the expected count in the database
+        $expected_count = Article::count();
+        $this->assertCount($expected_count, $articles);
+    }
+    public function test_show_render_with_single_category_filter() : void {
+        // Simulate request with a single category filter
+        $categoryId = 1;
+        $response = $this->actingAs($this->user)->post('dashboard/article/show' ,[
+            'category' => $categoryId
+        ]);
+
+        // Assert the status is 200
+        $response->assertStatus(200);
+
+        // Access the articles passed to the view
+        $articles = $response->viewData('articles');
+
+        // Calculate the expected count based on the category filter
+        $expected_count = Article::where('category_id', $categoryId)->count();
+
+        // Assert the count of filtered articles
+        $this->assertCount($expected_count, $articles);
+    }
+    public function test_show_render_with_multiple_category_filters() : void {
+        // Simulate request with multiple category filters (e.g., category IDs 1 and 2)
+        $categoryIds = [1, 2];
+        $response = $this->actingAs($this->user)->post('dashboard/article/show' ,[
+            'category' => $categoryIds
+        ] );
+
+        // Assert the status is 200
+        $response->assertStatus(200);
+
+        // Access the articles passed to the view
+        $articles = $response->viewData('articles');
+
+        // Calculate the expected count based on multiple categories
+        $expected_count = Article::whereIn('category_id', $categoryIds)->count();
+
+        // Assert the count of filtered articles
+        $this->assertCount($expected_count, $articles);
+    }
+    public function test_show_render_with_single_tag_filter() : void {
+        // Simulate request with a single tag filter
+        $tagId = 1;
+        $response = $this->actingAs($this->user)->post('dashboard/article/show',['tag' => $tagId]);
+
+        // Assert the status is 200
+        $response->assertStatus(200);
+
+        // Access the articles passed to the view
+        $articles = $response->viewData('articles');
+
+        // Calculate the expected count based on the tag filter
+        $expected_count = Article::whereHas('tags', function ($query) use ($tagId) {
+            $query->where('tag_id', $tagId);
+        })->count();
+
+        // Assert the count of filtered articles
+        $this->assertCount($expected_count, $articles);
+    }
+    public function test_show_render_with_multiple_tag_filters() : void {
+        // Simulate request with multiple tag filters (e.g., tag IDs 1 and 2)
+        $tagIds = [1, 2];
+        $response = $this->actingAs($this->user)->post('dashboard/article/show',['tag' => $tagIds]);
+
+        // Assert the status is 200
+        $response->assertStatus(200);
+
+        // Access the articles passed to the view
+        $articles = $response->viewData('articles');
+
+        // Calculate the expected count based on multiple tags
+        $expected_count = Article::whereHas('tags', function ($query) use ($tagIds) {
+            $query->whereIn('tag_id', $tagIds);
+        })->distinct()->count(); // Ensure articles are counted once if they have multiple tags
+
+        // Assert the count of filtered articles
+        $this->assertCount($expected_count, $articles);
+    }
+    public function test_show_render_with_tag_and_category_filters() : void {
+        // Simulate request with both category and tag filters
+        $categoryIds = [1, 2];
+        $tagIds = [1, 2];
+        $response = $this->actingAs($this->user)->post('dashboard/article/show' , [
+            'category' => $categoryIds,
+            'tag' => $tagIds
+        ]);
+        // Assert the status is 200
+        $response->assertStatus(200);
+
+        // Access the articles passed to the view
+        $articles = $response->viewData('articles');
+
+        // Calculate the expected count based on both categories and tags
+        $expected_count = Article::whereIn('category_id', $categoryIds)
+            ->whereHas('tags', function ($query) use ($tagIds) {
+                $query->whereIn('tag_id', $tagIds);
+            })
+            ->distinct()
+            ->count();
+
+        // Assert the count of filtered articles
+        $this->assertCount($expected_count, $articles);
+    }
+
+
+
 }
