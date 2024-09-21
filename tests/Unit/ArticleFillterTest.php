@@ -36,7 +36,7 @@ class ArticleFillterTest extends TestCase
         $expected_count = Article::where('category_id', $category->id)->count();
 
         $article_query = Article::query();
-        $actual_count = $article_query->category([$category->id])->get()->count(); // Use `get` instead of `all`
+        $actual_count = $article_query->fcategory([$category->id])->get()->count(); // Use `get` instead of `all`
 
         $this->assertEquals($expected_count, $actual_count);
     }
@@ -48,8 +48,8 @@ class ArticleFillterTest extends TestCase
         $expected_count = ArticleTag::where('tag_id' , $tag->id)->get()->count();// Assuming many-to-many relation
 
         $article_query = Article::query();
-        $actual_count = $article_query->articletag([$tag->id])->get()->count();
-        // Log::debug($article_query->tag([$tag->id])->get());                                                                                                                       );
+        $actual_count = $article_query->ftags([$tag->id])->get()->count();
+
         $this->assertEquals($expected_count, $actual_count);
     }
     public function test_filter_mult_category(): void
@@ -59,7 +59,7 @@ class ArticleFillterTest extends TestCase
         $expected_count = Article::whereIn('category_id', $categories->pluck('id'))->count();
 
         $article_query = Article::query();
-        $actual_count = $article_query->category($categories->pluck('id'))->get()->count();
+        $actual_count = $article_query->fcategory([1,2])->get()->count();
 
         $this->assertEquals($expected_count, $actual_count);
     }
@@ -71,13 +71,13 @@ class ArticleFillterTest extends TestCase
 
         // Calculate the expected count by ensuring articles are counted uniquely (distinct)
         $expected_count = Article::whereHas('tags', function ($query) use ($tags) {
-            $query->whereIn('tag_id', $tags->pluck('id'));
+            $query->whereIn('tag_id',[1,2]);
         })->distinct()->count();
 
         $article_query = Article::query();
 
         // Use distinct in the query to avoid double counting
-        $actual_count = $article_query->articletag($tags->pluck('id'))->distinct()->get()->count();
+        $actual_count = $article_query->ftags([1,2])->distinct()->get()->count();
 
         $this->assertEquals($expected_count, $actual_count);
     }
@@ -88,14 +88,14 @@ class ArticleFillterTest extends TestCase
         $categories = Category::whereIn('id', [1, 2])->get();
         $tags = Tag::whereIn('id', [1, 2])->get();
 
-        $expected_count = Article::whereIn('category_id', $categories->pluck('id'))
+        $expected_count = Article::whereIn('category_id', [1,2])
             ->whereHas('tags', function ($query) use ($tags) {
-                $query->whereIn('tag_id', $tags->pluck('id'));
+                $query->whereIn('tag_id', [1,2]);
             })->count();
 
         $article_query = Article::query();
-        $actual_count = $article_query->category($categories->pluck('id'))
-            ->articletag($tags->pluck('id'))->get()->count();
+        $actual_count = $article_query->fcategory([1,2])
+            ->ftags([1,2])->get()->count();
 
         $this->assertEquals($expected_count, $actual_count);
     }
