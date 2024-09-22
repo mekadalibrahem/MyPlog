@@ -1,35 +1,34 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Edit Article') }}
+            {{ __('NEw Article') }}
         </h2>
     </x-slot>
 
     <x-section>
-        <x-auth-session-status class="mb-4" :status="session('update_article')" />
-        <form action="{{ route('article.update', ['id' => $article->id]) }}" method="POST" class="flex flex-col gap-3">
+        <x-auth-session-status class="mb-4" :status="session('insert_article')" />
+        <form action="{{ route('article.insert' )}}" method="POST" class="flex flex-col gap-3">
             @csrf
-            @method('PATCH')
+           
             <div>
                 <x-input-label for="name" :value="__('Article  name')" />
-                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="$article->name"
+                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')"
                     required />
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
             <div>
                 <x-input-label for="content" :value="__('Article  content')" />
-                <textarea id="content" class="block mt-1 w-full" type="text" name="content" required>{{ $article->content }}</textarea>
+                <textarea id="content" class="block mt-1 w-full" type="text" name="content"
+                                                    required >{{ old('content') }}</textarea>
                 <x-input-error :messages="$errors->get('contetnt')" class="mt-2" />
             </div>
             <div>
                 <x-input-label for="category" :value="__('Article  category')" />
                 <select name="category" id="category">
-                    <option value="{{ null }}">{{ __('Nothing') }}</option>
+                    <option value="{{null}}">{{ __('Nothing') }}</option>
                     @foreach ($categories as $category)
-                        @php
-                            $selected = $category->id == $article->category_id;
-                        @endphp
-                        <option value="{{ $category->id }}" {{ $selected ? 'selected' : '' }}>
+
+                        <option value="{{ $category->id }}" >
                             {{ $category->name }}
                         </option>
                     @endforeach
@@ -39,11 +38,7 @@
             <div>
                 <x-input-label for="tags" :value="__('Article  tag')" />
                 @php
-                    $selected_tags = $article->tags;
-                    $selected_tags_ids = [];
-                    foreach ($selected_tags as $t) {
-                        $selected_tags_ids[] = $t->id;
-                    }
+                    $selected_tags_ids =  null ;
                 @endphp
                 <x-widgits.dropdown-checkbox id="tags" togleitem="ttags" filtername="tags[]" title="tags"
                     :list="$tags" :oldf="$selected_tags_ids" />
@@ -52,20 +47,9 @@
 
             <div>
                 <x-primary-button class=" mt-3 p-3">
-                    {{ __('Save') }}
+                    {{ __('Add new') }}
                 </x-primary-button>
-
-
             </div>
-        </form>
-        <form action="{{ route('article.delete', ['id' => $article->id]) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <x-secondary-button type="submit" class=" mt-3 p-3">
-
-                {{ __('Delete') }}
-
-            </x-secondary-button>
         </form>
 
     </x-section>

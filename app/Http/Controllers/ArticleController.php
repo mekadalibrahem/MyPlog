@@ -38,14 +38,19 @@ class ArticleController extends Controller
     ]);
     }
     public function create(){
+        return view('dashboard.article-create' , [
 
+            'categories' => Category::all(),
+            'tags' => Tag::all()
+        ]);
     }
 
     public function edit(Request $request ){
+        $request->validate([
+            'id' =>'required|integer|exists:articles,id'
+        ]);
         try {
-            $request->validate([
-                'id' =>'required|integer|exists:articles,id'
-            ]);
+
             $article = Article::find($request->id);
             return view('dashboard.article-edit' , [
                 'article' => $article,
@@ -53,6 +58,7 @@ class ArticleController extends Controller
                 'tags' => Tag::all()
             ]);
         } catch (\Throwable $th) {
+            Log::debug( "ERROR EDIT ARTICLE METHOD  " . $th->getMessage());
             return response($th->getMessage() , 400);
         }
 
@@ -61,7 +67,7 @@ class ArticleController extends Controller
         $request->validate([
               'name' => "string|min:10",
               'content' => "string|min:15",
-              'category' => 'integer|exists:categories,id|nullable',
+              'category' => 'exists:categories,id|nullable',
 
         ]);
 
@@ -72,7 +78,6 @@ class ArticleController extends Controller
        $article->category_id = $request->category ?? null ;
        $article->save();
        if($request->tags !== []){
-
             $article->tags()->attach($request->tags);
             $article->save();
        }
@@ -80,17 +85,17 @@ class ArticleController extends Controller
 
 
         Session::flash('insert_article' , trans('Your Article saved'));
-    return redirect()->back();
+        return redirect()->back();
        } catch (\Throwable $th) {
             Log::debug("ERROR: create new article { ". $th->getMessage() ." }");
-            return response($th->getMessage(),302);
+            return response($th->getMessage(),501);
        }
     }
 
     public function update(Request $request){
 
 
-        
+
         $request->validate([
 
             'id' => 'integer|exists:articles,id',
@@ -119,18 +124,19 @@ class ArticleController extends Controller
 
     public function delete(Request $request , $id){
         try {
-            if($id == null){
+            if(!$id){
                 throw new \Exception("ID article can't be null ");
             }else{
                 // check if id is valid
-                $tag  = Article::find($id);
-                if($tag){
-                    $name = $tag->name;
-                    $tag->delete();
-                    $request->session()->put('delete-article' , trans("Article [:name] Deleted" , ['name' => $name]));
-                    return redirect()->route('article.create');
+                $article  = Article::find($id);
+                if($article){
+                    $name = $article->name;
+                    $article->updateTags();
+                    $article->delete();
+                    Session::flash('delete-article' , trans("Article [:name] Deleted" , ['name' => $name]));
+                    return redirect()->route('article.show');
                 }else{
-                    throw new \Exception("INVALID TAG ID NUMBER , NOT FOUND");
+                    throw new \Exception("INVALID Article ID NUMBER , NOT FOUND");
                 }
             }
         } catch (\Throwable $th) {

@@ -106,7 +106,7 @@ class ArticleFillterTest extends TestCase
         $articles = $response->viewData('articles');
 
         // Assert the count of articles returned matches the expected count in the database
-        $expected_count = Article::count();
+        $expected_count = Article::paginate(10)->count();
         $this->assertCount($expected_count, $articles);
     }
     public function test_show_render_with_single_category_filter() : void {
@@ -123,7 +123,7 @@ class ArticleFillterTest extends TestCase
         $articles = $response->viewData('articles');
 
         // Calculate the expected count based on the category filter
-        $expected_count = Article::where('category_id', $categoryId)->count();
+        $expected_count = Article::where('category_id', $categoryId)->paginate(10)->count();
 
         // Assert the count of filtered articles
         $this->assertCount($expected_count, $articles);
@@ -142,7 +142,7 @@ class ArticleFillterTest extends TestCase
         $articles = $response->viewData('articles');
 
         // Calculate the expected count based on multiple categories
-        $expected_count = Article::whereIn('category_id', $categoryIds)->count();
+        $expected_count = Article::whereIn('category_id', $categoryIds)->paginate(10)->count();
 
         // Assert the count of filtered articles
         $this->assertCount($expected_count, $articles);
@@ -161,7 +161,7 @@ class ArticleFillterTest extends TestCase
         // Calculate the expected count based on the tag filter
         $expected_count = Article::whereHas('tags', function ($query) use ($tagId) {
             $query->where('tag_id', $tagId);
-        })->count();
+        })->paginate(10)->count();
 
         // Assert the count of filtered articles
         $this->assertCount($expected_count, $articles);
@@ -180,7 +180,7 @@ class ArticleFillterTest extends TestCase
         // Calculate the expected count based on multiple tags
         $expected_count = Article::whereHas('tags', function ($query) use ($tagIds) {
             $query->whereIn('tag_id', $tagIds);
-        })->distinct()->count(); // Ensure articles are counted once if they have multiple tags
+        })->distinct()->paginate(10)->count(); // Ensure articles are counted once if they have multiple tags
 
         // Assert the count of filtered articles
         $this->assertCount($expected_count, $articles);
@@ -205,7 +205,7 @@ class ArticleFillterTest extends TestCase
                 $query->whereIn('tag_id', $tagIds);
             })
             ->distinct()
-            ->count();
+            ->paginate(10)->count();
 
         // Assert the count of filtered articles
         $this->assertCount($expected_count, $articles);

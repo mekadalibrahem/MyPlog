@@ -43,7 +43,7 @@ class Article extends Model
             }
         });
     }
-    public function updateTags($tags){
+    public function updateTags($tags = null){
 
         if($tags){
 

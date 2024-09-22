@@ -39,7 +39,7 @@ Route::middleware([
         ],function(){
         Route::match(['get', 'post'],'/show', [ArticleController::class , 'show'])->name('show');
         Route::get('/create' , [ ArticleController::class ,'create'])->name('create');
-        Route::post('/create' , [ArticleController::class , 'insert'])->name('create');
+        Route::post('/insert' , [ArticleController::class , 'insert'])->name('insert');
         Route::get('/update' , [ArticleController::class , 'edit'])->name('update');
         Route::patch('/update' , [ArticleController::class , 'update'])->name('update');
         Route::delete('/delete/{id}',[ArticleController::class , 'delete'])->name('delete');
