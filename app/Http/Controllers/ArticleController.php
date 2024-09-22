@@ -8,6 +8,7 @@ use App\Models\Tag;
 use App\Traits\ArticleFilterTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class ArticleController extends Controller
 {
@@ -22,7 +23,7 @@ class ArticleController extends Controller
     $ftags = $request->input('filterTags', []);
     $this->ArticleFilter($query, $fcategories ?? null , $ftags ?? null );
     // Execute the query
-    $articles = $query->paginate(5)->appends([
+    $articles = $query->paginate(10)->appends([
         'filterCategory' => $fcategories,
         'filterTags' => $ftags
     ]);
@@ -40,7 +41,20 @@ class ArticleController extends Controller
 
     }
 
-    public function edit(){
+    public function edit(Request $request ){
+        try {
+            $request->validate([
+                'id' =>'required|integer|exists:articles,id'
+            ]);
+            $article = Article::find($request->id);
+            return view('dashboard.article-edit' , [
+                'article' => $article,
+                'categories' => Category::all(),
+                'tags' => Tag::all()
+            ]);
+        } catch (\Throwable $th) {
+            return response($th->getMessage() , 400);
+        }
 
     }
     public function insert(Request $request){
@@ -65,7 +79,7 @@ class ArticleController extends Controller
 
 
 
-        $request->session()->put('insert_article' , trans('Your Article saved'));
+        Session::flash('insert_article' , trans('Your Article saved'));
     return redirect()->back();
        } catch (\Throwable $th) {
             Log::debug("ERROR: create new article { ". $th->getMessage() ." }");
@@ -74,18 +88,26 @@ class ArticleController extends Controller
     }
 
     public function update(Request $request){
+
+
+        
+        $request->validate([
+
+            'id' => 'integer|exists:articles,id',
+            'name' => "string|min:10",
+            'content' => "string|min:15",
+            'category' => 'integer|exists:categories,id|nullable',
+            'tags' => 'array|nullable',
+            'tags.*' => 'integer|exists:tags,id',
+        ]);
         try {
-
-
-            $request->validate([
-
-                'old_name' => 'string|min:4|exists:tags,name',
-                'new_name' => "string|min:4|unique:tags,name|different:old_name" ,
-            ]);
-            $tag = Article::where('name' , $request->old_name)->first();
-            $tag->name = $request->new_name ;
-            $tag->save();
-            $request->session()->put('update_article' , trans('Your Article updated'));
+            $article = Article::find($request->id);
+            $article->name = $request->name ;
+            $article->content = $request->content ;
+            $article->category_id = ($request->category > 0)  ? $request->category :null ;
+            $article->save();
+            $article->updateTags($request->tags);
+            Session::flash('update_article' , trans('Your Article updated'));
             return redirect()->back();
 
 

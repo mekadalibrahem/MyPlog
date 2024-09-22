@@ -43,4 +43,18 @@ class Article extends Model
             }
         });
     }
+    public function updateTags($tags){
+
+        if($tags){
+
+            $currents = $this->tags->pluck('id')->toArray();
+            $remove = array_diff($currents , $tags);
+            $add = array_diff($tags,$currents);
+            ArticleTag::where('article_id' , $this->id)
+                ->whereIn('tag_id' , $remove)->delete();
+            $this->tags()->attach($add);
+        }else{
+            ArticleTag::where('article_id' , $this->id)->delete();
+        }
+    }
 }
