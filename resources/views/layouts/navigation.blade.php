@@ -16,7 +16,9 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-
+                    <x-nav-link :href="route('article.show')" :active="request()->routeIs('article.show')">
+                        {{ __('Articles') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('category.create')" :active="request()->routeIs('category.create')">
                         {{ __('Categories') }}
                     </x-nav-link>
@@ -77,6 +79,9 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('article.show')" :active="request()->routeIs('article.show')">
+                {{ __('Articles') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('category.create')" :active="request()->routeIs('category.create')">
                 {{ __('Categories') }}
