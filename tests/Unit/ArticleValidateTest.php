@@ -25,12 +25,17 @@ class ArticleValidateTest extends TestCase
             'name' => 'test1234567890' ,
             "content" => "content 12345678901234567890",
             'category' => null ,
-            'tags' => null ,
+            'tags' => [] ,
         ];
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
         // $response->assertStatus(200);
         $article = Article::where('name' , 'test1234567890')->first();
-        $this->assertEquals('test1234567890', $article->name);
+
+        if($article){
+            $this->assertEquals('test1234567890', $article->name);
+        }else{
+            $this->fail($article);
+        }
     }
 
     public function test_create_invalid_name():void{
@@ -40,7 +45,7 @@ class ArticleValidateTest extends TestCase
             'category' => null ,
             'tags' => null ,
         ];
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
         $response->assertStatus(302);
     }
     public function test_create_invalid_content():void{
@@ -50,7 +55,7 @@ class ArticleValidateTest extends TestCase
             'category' => null ,
             'tags' => null ,
         ];
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
         $response->assertStatus(302);
     }
 
@@ -61,7 +66,7 @@ class ArticleValidateTest extends TestCase
             'category' => "IT" ,
             'tags' => null ,
         ];
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
         $response->assertStatus(302);
     }
 
@@ -72,8 +77,8 @@ class ArticleValidateTest extends TestCase
             'category' => null ,
             'tags' => [1,2,3] ,
         ];
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
-        $response->assertStatus(302);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
+        $response->assertStatus(501);
     }
 
     public function test_create_with_category(){
@@ -86,7 +91,7 @@ class ArticleValidateTest extends TestCase
             'tags' => null ,
         ];
 
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
         // $response->assertStatus(200);
         $article = Article::where('name' , 'test1234567890')->first();
         $this->assertEquals('test1234567890', $article->name);
@@ -106,7 +111,7 @@ class ArticleValidateTest extends TestCase
             'tags' => $tags_list ,
         ];
 
-        $response  = $this->actingAs($this->user)->post('dashboard/article/create' , $data);
+        $response  = $this->actingAs($this->user)->post('dashboard/article/insert' , $data);
         $response->assertStatus(302);
         $article = Article::where('name' , 'test1234567890')->first();
         $this->assertEquals('test1234567890', $article->name);

@@ -161,10 +161,13 @@ class ArticleFillterTest extends TestCase
         // Calculate the expected count based on the tag filter
         $expected_count = Article::whereHas('tags', function ($query) use ($tagId) {
             $query->where('tag_id', $tagId);
-        })->paginate(10)->count();
+        })->count();
+        if($expected_count > 10){
+            $expected_count = 10;
+        }
 
         // Assert the count of filtered articles
-        $this->assertCount($expected_count, $articles);
+        $this->assertEquals($expected_count, $articles->count());
     }
     public function test_show_render_with_multiple_tag_filters() : void {
         // Simulate request with multiple tag filters (e.g., tag IDs 1 and 2)

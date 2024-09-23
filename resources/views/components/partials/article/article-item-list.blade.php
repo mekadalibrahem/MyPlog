@@ -34,7 +34,7 @@
                     </svg>
                 </a>
             @else
-                <a href="{{ route('article.index', ['id' => $article->id]) }}"
+                <a href="{{ route('article', ['id' => $article->id]) }}"
                     class="inline-flex items-center font-medium text-blue-600 hover:text-blue-800 dark:text-blue-500 dark:hover:text-blue-700">
 
                     {{ __('Learn more') }}
